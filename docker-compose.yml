@@ -1,0 +1,82 @@
+# Use root/example as user/password credentials
+#version: '3.1'
+
+name: my_app
+
+services:
+
+# backend:
+#    container_name: backend
+#    build:
+#      context: ./backend
+#      dockerfile: Dockerfile
+#    restart: always
+#    env_file:
+#      - path: ./backend/.env.production
+#        required: true
+#    ports:
+#      - 3000:3000
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'  # Limit to 0.5 of a CPU core
+#          memory: 512M # Limit to 512 megabytes of memory
+#        reservations:
+#          cpus: '0.25' # Reserve 0.25 of a CPU core
+#          memory: 256M # Reserve 256 megabytes of memory
+#    networks:
+#      - private_network
+#      - public_network
+#    depends_on:
+#      - postgres-db
+      
+  postgres-db:
+    container_name: db
+    image: postgres:alpine
+    restart: always
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_USER: myuser # Database username
+      POSTGRES_PASSWORD: mypassword # Database password (change this!)
+#      POSTGRES_DB: geo_share_database # Database name 
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data 
+    ports:
+      - 5432:5432
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'  # Limit to 0.5 of a CPU core
+          memory: 150M # Limit to 512 megabytes of memory
+        reservations:
+          cpus: '0.25' # Reserve 0.25 of a CPU core
+          memory: 100M # Reserve 256 megabytes of memory
+    networks:
+      - private_network
+                
+          
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - private_network
+      - public_network
+
+
+
+networks:
+  private_network:
+  public_network:
+
+      
+
